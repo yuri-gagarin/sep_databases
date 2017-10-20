@@ -1,0 +1,11 @@
+1. The first row would be stored as a string. The second row likely as an integer, third row would be stored as a string as well. Fourth and fifth rows would likely be stored as floats.
+2. Whenever we have information which may be reguraly created, read, updated or destroyed the database would be the most logical approach to store that information. If we have some static information that just needs to be served from a file, then a .txt file could do just fine.
+3. SQL is a declarative language. It's main focus is creating, pulling or changing data (querying). There is no class/object system as SQL focuses on data manipulation through statements. Javascript/Ruby and other onject oriented languages are on the other hand are procedural and object-oriented.
+4. Data gets created and inserted into a specific table. In our example we could look up/modify/delete this data through specific SQL commands. Any lookups and retrieval of specific data would return a temporary new table while not modifying the original table. Update or Destroy operation do however modify the original table.
+5. A table in a database can be used to represent a certain set of data. Each column will have a name/descripton of the data type and each rown would be an instance of that data type. If we wanted 10 unique instances of the User class, then the users table would have 10 rows with 10 different unique users and corresponding data about those users. 
+6. Some of the datatypes which can be used in databases include: INT - integer, STRING(varchar?), FLOAT, BOOLEAN?
+7. The first query would return all the rows from the payments table and sort them in a new temporary table with "date" and "amount" columns. The second query would only return the amount of the payments and only those payments which are more than 500. The last query select all of the columns but returns only those payments in which the payee is set to "Mega Foods".
+8. -- SELECT email, sign_up_date FROM users WHERE user_name = "DeAndre Data"
+   -- SELECT user_id FROM users WHERE email = "aleesia.algorithm@uw.edu"
+   -- SELECT * FROM users WHERE user_id = 4
+   
