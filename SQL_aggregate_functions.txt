@@ -1,0 +1,166 @@
+1. List 5 aggreagate function and explain in your own words, what they are for. 
+
+SUM() - used to sum up amounts in a column. Can be used to sum up all the amounts in each column.
+
+AVG() - used to find an average of the column. In a table of emlpoyess and salaries, we can easily find out the average salary or an average salary by department if grouped by department.
+
+COUNT() - can be used to count up all the rows. Whether it be all the rows in the table or specific rows set by filter methods/
+
+MIN() - used to find a minimum value in the column. For example if we have a table of employees, and salaries we can easily find the minimum salary.
+
+MAX() - opposite of the MIN() function, in an employee-salary table, we can easily find out a maximum salary which is currently being paid.
+
+
+
+2. Given the 'donations' table, write queries and include the output for the following:
+
+* The total of all donations received on the past year.
+
+SELECT SUM(amount) FROM donations WHERE EXTRACT(YEAR FROM date) = 2017;
+
+returns 993.0
+
+* The total of all donations over time per donor(e.g. if Tanysha has donated 3 times with the amounts of $25, $30, and $50, then the result would be | Tanysha | 105 |).
+
+SELECT donor, sum(amount)
+FROM donations
+GROUP BY donor;
+
+"Bran",25.0
+"Arya",60.0
+"Daenerys",173.0
+"Ygritte",30.0
+"Tormund",50.0
+"Sansa",33.0
+"Samwell",20.0
+"Melisandre",45.0
+"Bronn",20.0
+"Missandei",90.0
+"Tyrion",120.0
+"Gilly",7.0
+"Brienne",75.0
+"Margaery",120.0
+"Jon",25.0
+"Daario",10.0
+"Theon",20.0
+"Petyr",70.0
+
+* The average donation per donor
+
+SELECT donor, AVG(amount)
+FROM donations
+GROUP BY donor;
+
+"Bran",25.0
+"Arya",20.0
+"Daenerys",86.5
+"Ygritte",30.0
+"Tormund",50.0
+"Sansa",33.0
+"Samwell",20.0
+"Melisandre",45.0
+"Bronn",20.0
+"Missandei",22.5
+"Tyrion",40.0
+"Gilly",7.0
+"Brienne",75.0
+"Margaery",120.0
+"Jon",25.0
+"Daario",10.0
+"Theon",10.0
+"Petyr",70.0
+
+* The number of donations over $100
+
+SELECT COUNT(*)
+FROM donations
+WHERE amount > 100;
+
+returns 2
+
+* The largest donation received on a single instance from a single donor.
+
+SELECT MAX(amount) AS maximum_donation
+FROM donations;
+
+returns 120.0
+
+* The smallest donation received.
+
+SELECT MIN(amount) AS minimum_donation
+FROM donations;
+
+returns 5.0
+
+3. How would you determine the display order of data returned by your SELECT statement?
+
+assuming I understand the the question correctly, I would user the ORDER BY clause. For example if I wanted to look at the whole donations table in the ascending order by donation:
+
+SELECT * FROM donations ORDER BY amount ASC;
+
+4. What is a real world situation where you would use OFFSET?
+Let's say I am looking at the donations table. I know my first 3 donors are billionares so I don't even want to show their average donations as not to disparage the rest of the group. So therefore....
+
+SELECT donor, AVG(amount) AS avg_donation
+FROM donations 
+GROUP BY donor
+ORDER BY avg_donation DESC
+OFFSET 3;
+
+Would not show the average donations of the first three donors as they may be in the millions and make the others feel bad:)
+
+5. Why is it important to use ORDER BY when limiting your results?
+when we limit our results, we want the table to be ordered. It would make little sense to limit to the first 5 results donation amounts if we do not know how the table is ordered. By the amount? By id? By name?
+
+6. What is the difference between HAVING and WHERE?
+
+WHERE is used in any SELECT query or UPDATE or DELETE queries, while HAVING is used in certain SELECT queries which contain an aggregate function or a GROUP BY clause. Both HAVING and WHERE  clauses are used to specify a filtering condition.
+More importanrly, the condition in the WHERE clause is used while fetching data from the table, data which does not pass the condition will not be fetched into results. HAVING clause is used later, to filter the summarized or grouped data.
+
+7. Correct the following SELECT statement: 
+
+SELECT id, SUM(amount)
+FROM payment
+HAVING SUM(amount) > 50;
+
+can correct it to:
+
+SELECT id, SUM(amount)
+FROM payment
+GROUP BY id
+HAVING SUM(amount) > 50;
+
+would return only IDs which sum of the amount was more than 50;
+
+8. Follow the instructions for the scenarios below:
+
+* Given the cats table on SQLfiddle, list all cats organized by intake date.
+
+SELECT * FROM cats 
+ORDER BY intake_date DESC;
+
+* Given the adoptions table, determine the 5 most recent adoptions to bea featured for a social media promotion called Happy Tails which lists recent successful adoptions.
+
+SELECT * FROM adoptions
+ORDER BY date DESC
+LIMIT 5;
+
+* There is a potential adopter looking for an adult female cat. In the most efficent way possible, list all female cats 2 or more years old from the CATS table.
+
+SELECT name FROM cats
+WHERE age > 2 AND gender = 'F';
+
+* From the donations table, find the top 5 donors with the highest cumulative donation amounts to be honored as the "Platinum Donors"
+
+SELECT donor, SUM(amount) AS total_donations FROM donations
+GROUP BY donor
+ORDER BY total_donations DESC
+LIMIT 5;
+
+* FROM the donations table, find donors 6-15 with the next highest cumulative donation amounts to be honored as "Gold Donors".
+
+SELECT donor, SUM(amount) AS total_donations FROM donations
+GROUP BY donor
+ORDER BY total_donations DESC
+OFFSET 5 LIMIT 10;
+
