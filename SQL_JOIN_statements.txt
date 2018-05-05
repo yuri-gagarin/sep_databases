@@ -1,0 +1,221 @@
+1. How do you find related data that is held in two separate data tables?
+	The best way to find data which is held in two separate tables is through various join statements. Assuming there is a way to relate the tables through a foreign key, join statements will allow us to get data from two or more different tables.
+
+2. Explain in your own words the difference between joins.
+	CROSS JOIN:
+		probably in my eyes one of the simpler join statements. It produces a result in which the numbers of rows in the first table is multiplied by the number of rows in the second one if no filtering WHERE clause is used.
+
+	INNER JOIN
+		perhaps one of the most useful and common join statements. Returns all rows from two or more tables as long as there is a match between the columns, i.e. joining one table with another one through the use of a FOREIGN KEY. Also abbreviated as JOIN in SQL statement. In a hypothetical USER - POST relationship, we can retrieve all the posts tied to a specific user through a INNER JOIN ON user.id = post.user_id;
+
+	LEFT JOIN
+		this type of join will give preference to the left table in the join. For example, if we join two tables PLAYER and TEAM. Suppose not every player is assigned a TEAM. Therefore a SQL statement like:
+		SELECT player.name, team.name 
+		FROM player
+		LEFT JOIN team
+		ON player.team_id = team_player_id;
+
+		would return all of the players which are matched by a team AND all of the players from the PLAYER table which do not have a team.
+
+	RIGHT JOIN
+		This join would be the revers of the example above. If a SQL statemnt is written with a RIGHT JOIN, the preference(weight) is given to the right table: Therefore a SQL statement such as:
+		SELECT player.name, team.name
+		FROM player
+		RIGHT JOIN team
+		on player.team_id = team.player_id;
+
+		would return all the players and all the teams matched, as well as if there are any teams without players, the query would return those rows as well.
+
+	FULL OUTER JOIN
+		A FULL OUTER JOIN would return all the matching columns from left table, in addition as not matching columns from the left and right tables. Therefore a SQL statement such as:
+		SELECT player.name, team.name
+		FROM player
+		FULL OUTER JOIN team
+		ON player.team_id. = team.player_id;
+
+		This statement would return all the matching columns. Then, assuming there are players which don't have a team assigned, the query would return those as well. Finally, assuming there are teams which don't have a player assigned, the query would return those rows too.
+
+
+3. Define primary key and foreign key. Give a real world example of each.
+
+	A PRIMARY KEY  is a unique value in each row of a table which is used to identify each and every row uniquely. It is often an integer but can also be a random set of numbers and characters. PRIMARY KEY values must be unique. For example in a USERS table each user should have a unique primary key identifying them. That way we can easily retreive each user by its id.
+
+	A FOREIGN KEY on the other hand is used to reference one table to another. A FOREIGN KEY will point to a PRIMARY KEY value of another table therefore creating a relationship between two tables. 
+
+	In an example of two tables USER and POSTS. If we wanted to associated each post with a user, we could create a FOREIGN KEY column in the POSTS table and name it USER_ID. Therefore we can relate USERS and POSTS. Running a JOIN query, we can retrieve all the posts belonging to a user by matching the users.id from the USERS table, to the posts.user_id from the POSTS table.
+
+4. Define aliasing:
+	
+	Aliasing allows us to use aliases to shorten a SQL query. This can be beneficial in two ways: First, aliasing can make your query more succinct and by making it more succint and having to repeat table names, your query may be less error prone by minimizing any spelling mistakes.
+
+5. Change this query so that you are using aliasing:
+
+	SELECT professor.name, compensation.salary, compensation.vacation_days
+	FROM professor
+	JOIN compensation ON professor.id = compensation.professor_id;
+
+	SELECT  p.name, c.salary, c.vacation_days
+	FROM professor as p
+	JOIN compensation as c on p.id = c.professor_id;
+
+6. Why would you use a NATURAL JOIN? Give a real world example.
+
+	A NATURAL JOIN will join two or more tables based on identically named columns with identical data type. Suppose we have two tables FOODS and COMPANY, which is the producing company of a particular product from the FOODS table. If both tables have columns named company_id, we could run the following SQL query:
+
+	SELECT * FROM foods NATURAL JOIN company;
+
+	The result would give us a table in which each row from the FOODS table would be matched to a COMPANY from the company table using the company_id column in both of the tables. Same result can be achieved with an INNER JOIN;
+
+7. Using this Employee schema and data, write queries to find the following information:
+	* All employees with theoir shifts if they have any. Also include any unscheduled shifts.
+
+	All employees with their shifts if they have any:
+	SELECT *
+	FROM employees
+	INNER JOIN scheduled_shifts ON employees.id = scheduled_shifts.employee_id
+	INNER JOIN shifts ON scheduled_shifts.shift_id = shifts.id;
+
+	Also include unscheduled shits:
+	SELECT *
+	FROM employees
+	JOIN scheduled_shifts ON employees.id = scheduled_shifts.employee_id
+	RIGHT OUTER JOIN shifts ON scheduled_shifts.shift_id = shifts.id;
+8. Using this adoption schema and data, please write queries to retreive the following information and include the results.
+
+	* All volunteers. If the volunteer is fostering a dog, include the dog as well.
+
+	SELECT volunteers.first_name AS "Name", volunteers.last_name "Last Name", dogs.name AS "Adopted Dog"
+	FROM volunteers 
+	LEFT JOIN dogs ON volunteers.foster_dog_id = dogs.id;
+
+	"Rubeus","Hagrid","Munchkin"
+	"Marjorie","Dursley","Marmaduke"
+	"Sirius","Black",NULL
+	"Remus","Lupin",NULL
+	"Albus","Dumbledore",NULL
+
+	* The cat's name, adopter's name, and adopted date for each cat adopted within the past month to be displayed as part of the "Happy Tail" social media promotion which posts recent successful adoptions.
+
+	SELECT adopters.first_name AS "Adopter", cats.name AS "Cat", cat_adoptions.date
+	FROM adopters
+	JOIN cat_adoptions ON adopters.id = cat_adoptions.adopter_id
+	JOIN cats ON cat_adoptions.cat_id = cats.id
+	WHERE DATE >= '2018-03-01' AND DATE < '2018-04-01';
+
+	"Arabella","Mushi","2018-03-30"
+	"Hermione","Azul","2018-03-05"
+
+	* Adopters who have not yet chosen a dog to adopt and generate all possible combinations of adopters and available dogs.
+
+	SELECT adopters.first_name AS "Adopter" , dogs.name AS "Possible Dog"
+	FROM adopters 
+	JOIN dog_adoptions ON adopters.id != dog_adoptions.adopter_id
+	JOIN dogs ON dog_adoptions.dog_id != dogs.id;
+
+	"Hermione","Boujee"
+	"Hermione","Munchkin"
+	"Hermione","Marley"
+	"Hermione","Lassie"
+	"Hermione","Marmaduke"
+	"Arabella","Boujee"
+	"Arabella","Munchkin"
+	"Arabella","Marley"
+	"Arabella","Lassie"
+	"Arabella","Marmaduke"
+
+	* Lists of all cats and dogs who have not been adopted.
+
+	SELECT dogs.name AS "dog"
+	FROM dogs 
+	FULL OUTER JOIN dog_adoptions
+	ON dogs.id = dog_adoptions.dog_id
+	WHERE dog_adoptions.dog_id IS NULL;
+
+	"Munchkin"
+	"Boujee"
+	"Lassie"
+	"Marley"
+	"Marmaduke"
+
+
+	SELECT cats.name AS "cat"
+	FROM cats
+	FULL OUTER JOIN cat_adoptions
+	ON cats.id = cat_adoptions.cat_id
+	WHERE cat_adoptions.cat_id IS NULL;s
+
+	"Seashell"
+	"Nala"
+
+	* Volunteers who are available to foster. If they currently are fostering a dog, include the dog. Also include all dogs who are not currently in foster homes.
+
+	SELECT volunteers.first_name AS "Volunteer", dogs.name AS "Dog Name"
+	FROM volunteers
+	FULL OUTER JOIN dogs
+	ON volunteers.foster_dog_id = dogs.id;
+
+	NULL,"Boujee"
+	"Rubeus","Munchkin"
+	NULL,"Marley"
+	NULL,"Lassie"
+	"Marjorie","Marmaduke"
+	NULL,"Rosco"
+	"Sirius",NULL
+	"Remus",NULL
+	"Albus",NULL
+
+	* The name of the person who adopted Rosco
+
+	SELECT adopters.first_name "First", adopters.last_name AS "Last", dogs.name AS "Adopted Dog"
+	FROM dogs 
+	JOIN dog_adoptions ON dogs.id = dog_adoptions.dog_id
+	JOIN adopters ON dog_adoptions.adopter_id = adopters.id
+	WHERE dogs.name = 'Rosco';
+
+	"Argus","Filch","Rosco"
+
+9. Using this Library schema and data, write queries applying the following scenarios:
+	* To determine if the library should buy more copies of the given book, please provide the names and position, in order, of all of the patrons with a hold (request for a book with all the copies checked out) on "Advanced Potion Making"
+
+	SELECT patrons.name, books.title, holds.rank
+	FROM patrons
+	INNER JOIN holds ON patrons.id = holds.patron_id
+	INNER JOIN books ON holds.isbn = books.isbn
+	WHERE books.title = 'Advanced Potion-Making'
+	ORDER BY holds.rank ASC;
+
+	* Make a list of all book titles and denote whether or not a copy of that book is checked out
+
+	This query returns books which have currently been checked out. I'm not sure if i understand the questions correctly and a way to return all the books, whether checked out or not without having duplicate rows with book names as SELECT DISTINCT looks at the whole row.
+
+	SELECT books.title, transactions.checked_in_date FROM books
+	JOIN transactions ON books.isbn = transactions.isbn
+	WHERE transactions.checked_in_date IS NULL ;
+
+	* In an effort to learn which books take longer to read, the librarians would like you to create a list of total checked out time by book nane in the past month 
+
+	SELECT books.isbn, books.title, SUM(transactions.checked_in_date - transactions.checked_out_date) AS total_days 
+	FROM transactions
+	INNER JOIN books ON transactions.isbn = books.isbn
+	WHERE transactions.checked_out_date::text LIKE '2018-04%'
+	GROUP BY books.isbn
+	ORDER BY total_days DESC;
+
+	* In order to learn which items should be retired, make a list of all books that have not been checked out in the past five years.
+
+	SELECT books.title, MAX(transactions.checked_out_date) AS last_checked_out FROM books
+	JOIN transactions 
+	ON books.isbn = transactions.isbn
+	GROUP BY books.title
+	HAVING MAX(transactions.checked_out_date) < '2013-01-01';
+
+
+	* List all the library patrons. If they have one or more book checked out, correspond the books to the patrons.
+
+	SELECT patrons.name, books.title, transactions.checked_out_date, transactions.checked_in_date
+	FROM patrons
+	JOIN transactions ON patrons.id = transactions.patron_id
+	JOIN books ON transactions.isbn = books.isbn;
+    
+    this is probably an incomplete solution. problem here is that I want to filter somehow to only return one name for each patron not all the transaction patrons have had. 
+
