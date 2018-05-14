@@ -1,0 +1,70 @@
+ * Work through the questions from the example above.
+    * Document any assumptions you make about what data should be stored, what data types should be usedm etc., and include them in a text file.
+
+    I am using Vertabello with PosgresSQL 9.X to keep in spirit with the rest of the checkpoints in this chapter
+
+    For the students, classes database I decided to have three tables:
+     'students' table which holds the autoincremented ID as the Primary Key, First and Last Names as Varchar(64), in case there are truly ridiculously long names, I also have a column current_grade_level with data type SMALLINT, assuming this can be elementary, midlle or high school and no student should really be in grade 876000322.00, so a SMALLINT will suffice
+     'classes' table holds only information about the particular classes offered by the school. An autoincrementing ID column set to SERIAL and a VARCHAR(64) column set to name. This is a minimalist approach. I could also add other information such as Department Name, or Teacher Name but since multiple teachers can teach the same class, that would violate some of the principles in the next chapter
+     'students_classes' table acts as a join table between students and classes, creating "many to many" relationship. It also acts to store more information about a particular student taking a particular class.
+     It stores the student_id as an INT, class_id as an INT, grade_received as a CHAR(1), in A-F format and a VARCHAR(32) string detailing a semester a specific student, took a specific class. In a large school we could have separate tables to specific Grade Years, we could also certainly add a teachers table, departments table and so on.
+
+    * Ask questions of your mentor in your next session if you are unsure about parts of your model.
+
+    * Draw the model using the notation used in the checkpoint and sumbit a picture. You can also use a tool like StarUML or quickdatabasediagrams.com if you choose.
+
+    The modeling tool I used is Vertabello. 
+
+3. Build a database for the students/classes data model. Create a SQL file that create the tables and inserts sample data(the questions below will help you create the data). Write queries for the folowing data:
+
+    * All students who have taken a particular class
+    SELECT s.first_name, s.last_name, c.name
+	FROM students as s
+	JOIN students_classes as sc ON s.id = sc.student_id
+	JOIN classes as c ON sc.class_id = c.id
+	WHERE c.name = 'Biology 200';
+
+	would return all students who took 'Biology 200'
+
+    * The number of each grade(using letter grades A-F) earned in a particular class.
+
+    SELECT c.name, sc.grade_received, count(sc.grade_received) as num_of_grades
+	FROM students as s
+	JOIN students_classes as sc ON s.id = sc.student_id
+	JOIN classes as c ON sc.class_id = c.id
+	WHERE c.name = 'Math 101'
+	GROUP BY c.name, sc.grade_received;
+
+	returns two rows detailing total number of each grades received:
+
+	"Math 101"; "A"; 3
+	"Math 101"; "B"; 5
+
+
+    * Class names and the total number of students who have taken each class in the list.
+
+    SELECT totals.name, count(*)
+	FROM
+		(SELECT c.name, s.first_name
+		FROM classes as c
+		JOIN students_classes as sc ON c.id = sc.class_id
+		JOIN students as s ON sc.student_id = s.id) as totals
+	GROUP BY totals.name;
+
+    * The class taken by the largest number of students
+
+    So one of my takeaways so far is that there is a multiple ways to approach a problem. Since the previous query already gives us a neat table of class names and the total number of students who took that class, a simple tweak will do:
+
+    SELECT totals.name, count(*)
+	FROM
+		(SELECT c.name, s.first_name
+		FROM classes as c
+		JOIN students_classes as sc ON c.id = sc.class_id
+		JOIN students as s ON sc.student_id = s.id) as totals
+	GROUP BY totals.name
+	ORDER BY count DESC LIMIT 1;
+
+	I grouped the most popular classes in descending order and returned the first row which gives us our most popular class, MATH 101.
+	
+
+
